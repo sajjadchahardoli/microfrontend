@@ -1,42 +1,43 @@
-version: '3'
+version: '3.9'
 services:
-  nuxt-shell:
+
+  shell:
     build:
-      context: ./nuxt-shell
+      context: ./shell
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./shell:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
-    networks:
-      - app-network
 
-  microfrontend-1:
+  mfe-visa:
     build:
-      context: ./microfrontend-1
+      context: ./mfe-visa
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./mfe-visa:/app
+      - /app/node_modules
     ports:
-      - "3001:3001"
-    networks:
-      - app-network
+      - "3001:3000"
 
-  microfrontend-2:
+  mfe-tour:
     build:
-      context: ./microfrontend-2
+      context: ./mfe-tour
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./mfe-tour:/app
+      - /app/node_modules
     ports:
-      - "3002:3002"
-    networks:
-      - app-network
+      - "3002:3000"
 
   nginx:
-    image: nginx:latest
+    image: nginx:alpine
     ports:
       - "80:80"
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - nuxt-shell
-      - microfrontend-1
-      - microfrontend-2
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
+      - shell
+      - mfe-tour
+      - mfe-visa
